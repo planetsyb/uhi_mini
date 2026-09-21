@@ -1,0 +1,15 @@
+{
+  "model_name": "Random Forest",
+  "target": "LST_mean_C",
+  "features": [
+    "NDVI_mean",
+    "NDBI_mean",
+    "NDWI_mean"
+  ],
+  "training_rows": 243,
+  "train_rows": 182,
+  "test_rows": 61,
+  "random_state": 42,
+  "scope": "Single-date ward-level prototype using Landsat 9 observations from 25 April 2026.",
+  "limitation": "This is not a temporally independent operational forecast. A multi-date dataset and spatial/temporal validation are required."
+}

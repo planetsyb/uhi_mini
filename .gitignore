@@ -1,0 +1,17 @@
+# Raw satellite image files: large and not required by the website
+*.TIF
+*.tif
+*.TIFF
+*.tiff
+
+# Python local files
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Local editor / system files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
