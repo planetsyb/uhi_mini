@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bengaluru Heat Explorer | LST, NDVI, NDBI and NDWI</title>
+  <meta
+    name="description"
+    content="A ward-wise satellite analysis and heat-intervention explorer for Bengaluru."
+  >
+
+  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  >
+</head>
+
+<body>
+  <header class="hero">
+    <div class="container">
+      <p class="eyebrow">Engineering Project · Satellite Heat Intelligence</p>
+      <h1>Bengaluru Heat Explorer</h1>
+      <p class="subtitle">
+        Explore ward-level land surface temperature, vegetation, built-up
+        intensity, and water/wetness signals. Click a ward to see why it is
+        relatively hot or cool and view possible heat-mitigation interventions.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary-button" href="#explorer">Explore Bengaluru</a>
+        <a class="button secondary-button" href="#methodology">View Methodology</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="container section">
+      <h2>Observed Satellite Results</h2>
+      <p>
+        These are observed, cloud-masked Landsat 9 results for Bengaluru on
+        <strong>25 April 2026</strong>. LST is surface temperature, not weather-station air temperature.
+      </p>
+
+      <div class="cards">
+        <article class="card heat-card">
+          <p class="card-label">Mean City LST</p>
+          <p class="card-value">42.33 °C</p>
+          <p>Pixel-weighted mean across valid 30 m satellite pixels</p>
+        </article>
+
+        <article class="card green-card">
+          <p class="card-label">Mean NDVI</p>
+          <p class="card-value">0.3107</p>
+          <p>Vegetation indicator; higher values generally indicate greener surfaces</p>
+        </article>
+
+        <article class="card built-card">
+          <p class="card-label">Mean NDBI</p>
+          <p class="card-value">−0.0104</p>
+          <p>Built-up surface indicator; higher values can indicate stronger built-up response</p>
+        </article>
+
+        <article class="card water-card">
+          <p class="card-label">Mean NDWI</p>
+          <p id="mean-ndwi" class="card-value">Pending</p>
+          <p>Water/wetness indicator; updated after NDWI calculation</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="explorer" class="container section">
+      <div class="section-heading">
+        <div>
+          <h2>Ward Heat Explorer</h2>
+          <p>
+            Select an indicator, then click a ward. The Heat Profile panel will
+            explain its measured surface conditions and suggest interventions.
+          </p>
+        </div>
+
+        <div class="controls">
+          <label for="indicator">Map layer</label>
+          <select id="indicator">
+            <option value="LST_mean_C">Mean LST (°C)</option>
+            <option value="NDVI_mean">Mean NDVI</option>
+            <option value="NDBI_mean">Mean NDBI</option>
+            <option value="NDWI_mean">Mean NDWI</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="explorer-layout">
+        <div>
+          <div id="map" aria-label="Interactive Bengaluru ward heat map"></div>
+          <p id="legend" class="legend"></p>
+        </div>
+
+        <aside id="heat-profile" class="heat-profile">
+          <p class="panel-eyebrow">Click a ward</p>
+          <h3>Heat Profile</h3>
+          <p>
+            Select a ward on the map to view observed LST, vegetation,
+            built-up, and wetness values.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container section">
+      <h2>What the Existing Results Show</h2>
+
+      <div class="relationship-grid">
+        <article class="relationship-card">
+          <p class="relationship-number">−0.4837</p>
+          <h3>LST–NDVI correlation</h3>
+          <p>
+            Wards with more vegetation generally tend to have lower daytime
+            land-surface temperature.
+          </p>
+        </article>
+
+        <article class="relationship-card">
+          <p class="relationship-number">+0.6870</p>
+          <h3>LST–NDBI correlation</h3>
+          <p>
+            Wards with a stronger built-up signal generally tend to have higher
+            daytime land-surface temperature.
+          </p>
+        </article>
+      </div>
+
+      <div class="plot-grid">
+        <article class="plot-card">
+          <h3>LST versus NDVI</h3>
+          <img
+            src="images/Bengaluru_LST_vs_NDVI.png"
+            alt="Scatter plot showing Bengaluru ward mean LST against NDVI"
+          >
+        </article>
+
+        <article class="plot-card">
+          <h3>LST versus NDBI</h3>
+          <img
+            src="images/Bengaluru_LST_vs_NDBI.png"
+            alt="Scatter plot showing Bengaluru ward mean LST against NDBI"
+          >
+        </article>
+      </div>
+    </section>
+
+    <section class="container section">
+      <h2>Intervention Framework</h2>
+      <p>
+        The ward-specific suggestions in this prototype are generated by transparent
+        rules using LST, NDVI, NDBI, and NDWI. After model training, the same panel
+        can show model-predicted LST/UHI and feature-based explanations.
+      </p>
+
+      <div class="intervention-grid">
+        <article class="intervention-card">
+          <h3>Individual / Household</h3>
+          <ul>
+            <li>Use light-coloured, high-reflectance roof coatings where feasible.</li>
+            <li>Plant native shade trees and shrubs in compounds.</li>
+            <li>Add shade nets, pergolas, or vertical greenery to reduce direct solar gain.</li>
+            <li>Improve roof insulation and ventilation.</li>
+          </ul>
+        </article>
+
+        <article class="intervention-card">
+          <h3>Community / RWA / Campus</h3>
+          <ul>
+            <li>Create pocket parks and shaded community spaces.</li>
+            <li>Increase roadside tree canopy and shade over parking areas.</li>
+            <li>Use permeable or lighter paving for pathways and open grounds.</li>
+            <li>Develop rooftop gardens on suitable community buildings.</li>
+          </ul>
+        </article>
+
+        <article class="intervention-card">
+          <h3>Business / Institution</h3>
+          <ul>
+            <li>Adopt cool roofs and high-albedo building materials.</li>
+            <li>Create green buffers around parking and paved areas.</li>
+            <li>Design shaded walkways and courtyards.</li>
+            <li>Reduce unshaded asphalt and add rainwater-sensitive landscaping.</li>
+          </ul>
+        </article>
+
+        <article class="intervention-card">
+          <h3>Policy / Urban Planning</h3>
+          <ul>
+            <li>Set tree-canopy and minimum-green-cover targets by ward.</li>
+            <li>Offer cool-roof and rooftop-garden incentives.</li>
+            <li>Protect mature trees and lake/wetland buffers.</li>
+            <li>Include shade, ventilation, and heat-resilience standards in urban design.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+<section class="container section">
+  <h2>Prototype Heat-Prediction Model</h2>
+
+  <p>
+    Three regression models were evaluated to estimate ward-level mean land
+    surface temperature using NDVI, NDBI, and NDWI. Random Forest achieved
+    the best performance and was selected for this prototype.
+  </p>
+
+  <div class="cards">
+    <article class="card heat-card">
+      <p class="card-label">Selected model</p>
+      <p class="card-value">Random Forest</p>
+      <p>Best overall validation performance among tested models</p>
+    </article>
+
+    <article class="card green-card">
+      <p class="card-label">Mean Absolute Error</p>
+      <p class="card-value">0.5748 °C</p>
+      <p>Average absolute error on held-out test wards</p>
+    </article>
+
+    <article class="card built-card">
+      <p class="card-label">RMSE</p>
+      <p class="card-value">0.8418 °C</p>
+      <p>Prediction error with stronger penalty for larger mistakes</p>
+    </article>
+
+    <article class="card water-card">
+      <p class="card-label">R²</p>
+      <p class="card-value">0.3443</p>
+      <p>Share of test-set LST variation explained by this prototype</p>
+    </article>
+  </div>
+
+  <div class="model-table-wrap">
+    <table class="model-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>MAE (°C)</th>
+          <th>RMSE (°C)</th>
+          <th>R²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="selected-model">
+          <td>Random Forest</td>
+          <td>0.5748</td>
+          <td>0.8418</td>
+          <td>0.3443</td>
+        </tr>
+        <tr>
+          <td>LightGBM</td>
+          <td>0.5943</td>
+          <td>0.8837</td>
+          <td>0.2774</td>
+        </tr>
+        <tr>
+          <td>XGBoost</td>
+          <td>0.6667</td>
+          <td>1.0092</td>
+          <td>0.0576</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    <strong>Important limitation:</strong> This is a single-date, ward-level
+    prototype based on 243 wards observed on 25 April 2026. It is not yet a
+    temporally independent operational forecast. Future work should add
+    multi-season satellite data, population density, road and building
+    information, tree-canopy data, and spatial/temporal validation.
+  </p>
+</section>
+
+<section class="container section">
+  <h2>What Drives Heat in This Prototype?</h2>
+
+  <p>
+    Permutation feature importance was calculated for the selected Random Forest
+    model. This test measures how much prediction performance changes when one
+    feature is randomly shuffled. Larger positive values indicate greater model reliance.
+  </p>
+
+  <div class="cards">
+    <article class="card built-card">
+      <p class="card-label">Primary heat-associated feature</p>
+      <p class="card-value">NDBI</p>
+      <p>Permutation importance: 0.5508 ± 0.0777</p>
+    </article>
+
+    <article class="card water-card">
+      <p class="card-label">NDWI contribution</p>
+      <p class="card-value">0.0199</p>
+      <p>Weak added contribution in the current prototype</p>
+    </article>
+
+    <article class="card green-card">
+      <p class="card-label">NDVI contribution</p>
+      <p class="card-value">0.0020</p>
+      <p>Near-zero independent contribution after other variables are included</p>
+    </article>
+  </div>
+
+<article class="plot-card feature-plot">
+  <h3>Permutation Feature Importance</h3>
+  <img
+    src="images/permutation_feature_importance.png"
+    alt="Bar chart showing NDBI as the most important feature in the Random Forest heat model"
+  >
+</article>
+
+  <p class="note">
+    <strong>Interpret carefully:</strong> Feature importance describes this
+    model and dataset, not a universal causal ranking. NDVI remained negatively
+    correlated with observed LST, but it may overlap statistically with the
+    built-up signal in this one-date, 243-ward dataset.
+  </p>
+</section>
+
+    <section id="methodology" class="container section">
+      <h2>Methodology</h2>
+      <ol class="method-list">
+        <li>Downloaded Landsat 9 Collection 2 Level-2 imagery acquired on 25 April 2026.</li>
+        <li>Used corrected BBMP 2022 ward boundaries for Bengaluru.</li>
+        <li>Masked fill, cloud, cirrus, dilated cloud, cloud-shadow, and snow pixels through QA_PIXEL.</li>
+        <li>Calculated LST from ST_B10, NDVI from B5 and B4, NDBI from B6 and B5, and NDWI from B3 and B5.</li>
+        <li>Calculated ward-level mean values for 243 wards and evaluated relationships among the indicators.</li>
+      </ol>
+
+      <p class="note">
+        <strong>Model-status note:</strong> the current public map contains observed
+        satellite measurements and rule-based interventions. A predictive model should
+        be trained and validated using multiple satellite dates before its predictions
+        are presented as operational forecasts.
+      </p>
+    </section>
+
+    <section class="container section download-section">
+      <h2>Download Project Data</h2>
+      <a
+        class="download-link"
+        href="data/Bengaluru_wards_LST_NDVI_NDBI_NDWI_2026_04_25.csv"
+        download
+      >
+        Download ward-level CSV
+      </a>
+      <a
+        class="download-link"
+        href="data/Bengaluru_wards_LST_NDVI_NDBI_NDWI_2026_04_25.geojson"
+        download
+      >
+        Download ward boundaries + indicators (GeoJSON)
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Bengaluru Heat Explorer · Engineering Project</p>
+      <p>Landsat 9 Collection 2 Level-2 · 30 m · 25 April 2026</p>
+    </div>
+  </footer>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+  <script src="script.js"></script>
+</body>
+</html>
