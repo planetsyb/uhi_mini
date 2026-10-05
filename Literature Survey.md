@@ -500,3 +500,178 @@ A proposed extension would retain the same validated three-stage backbone but cl
 - USGS Earth Explorer (https://earthexplorer.usgs.gov/) — Landsat 5/7/8 imagery
 - OpenStreetMap (OSM) — road, built-up, and water body vector layers
 - SRTM DEM — elevation, slope, and aspect data
+---
+
+### Literature Survey 5
+#### 1. Full Paper Name (IEEE Format)
+
+E. J. Esha and M. T. U. Rahman, "Simulation of future land surface temperature under the scenario of climate change using remote sensing & GIS techniques of northwestern Rajshahi district, Bangladesh," _Environmental Challenges_, vol. 5, p. 100365, 2021, doi: 10.1016/j.envc.2021.100365.
+
+#### 2. Observations & Our Findings from the Research Paper
+
+- Mean LST rose during post-monsoon (+~2.6°C, 2014–2020) and winter (+4.34°C), while pre-monsoon LST dipped slightly — seasonal temperature variation is narrowing over time.
+- Annual mean air temperature trend (1985–2018): +0.0195°C/year; monsoon season warms fastest at +0.043°C/year; winter is the only season cooling (−0.0024°C/year).
+- Heat-wave frequency (days >36°C) is rising at +0.4127 days/year; cold-wave frequency (<10°C) also rises, but far more slowly (+0.0461 days/year).
+- Rainfall is falling in every season except pre-monsoon; monsoon rainfall drops fastest (−9.0098 mm/year), raising drought risk even in the rainy season.
+- Air and surface temperature are strongly correlated (R² = 0.947 max, 0.753 min, 0.951 mean; p < 0.05 throughout).
+- LST correlates negatively with NDVI and positively with NDBI in all four study years — built-up/barren land is consistently hotter than vegetated or water surfaces.
+- The CA-ANN (MOLUSCE, QGIS) simulation predicts that very-high-LST area will dip slightly in 2022 but climb again in 2024, while moderate-LST area (23.5–25.5°C) expands in both years — a gradual net warming trajectory.
+- Model validation: 2020 simulation matched actual classified LST with 74.08% overall correctness; ROC AUC = 0.75 and 0.70 for the two transition models — acceptable but not high accuracy.
+
+#### 3. Technology, Operating System, and Software Used
+
+|Category|Details (as used in the paper)|
+|---|---|
+|Satellite data|Landsat 8 OLI/TIRS, path/row 138/43, bands 10 & 11 (thermal), NIR, Red, SWIR|
+|Data sources|USGS GloVis (Level-1 Terrain Corrected imagery), Bangladesh Meteorological Department (35-station daily data, 1985–2018)|
+|GIS/modelling software|QGIS with the **MOLUSCE plugin** (Cellular Automata + Multi-Layer Perceptron ANN, 10 hidden layers, Monte Carlo transition simulation)|
+|Classification method|Unsupervised ISO Cluster classification (3 classes: vegetation, water, barren & built-up)|
+|Statistical tools|Linear regression, Multi Binary Logistic Regression (MBLR), ROC/AUC, RMSE, MAE, R²|
+|Operating system|Not explicitly stated — QGIS/MOLUSCE is cross-platform (Windows/Linux/macOS), so no OS dependency is disclosed in the paper|
+
+#### 4. Methodology Used in the Research Paper
+
+1. **Data acquisition** — daily meteorological data (1985–2018) + Landsat 8 imagery for pre-monsoon, post-monsoon, and winter of 2014, 2016, 2018, 2020.
+2. **LST derivation** — DN → spectral radiance → brightness temperature (Kelvin) → Celsius, computed separately for bands 10 and 11 and averaged.
+3. **Land cover derivation** — unsupervised ISO Cluster classification into 3 classes; NDVI and NDBI computed and reclassified.
+4. **Meteorological trend & frequency analysis** — annual/seasonal mean temperature and rainfall trends; frequency of hot (>36°C) and cold (<10°C) days over 34 years.
+5. **Correlation analysis** — air vs. surface temperature (regression, R², RMSE, MAE, p-value); LST vs. NDVI/NDBI.
+6. **Change detection & impact assessment** — spatial overlay of LST against LULC change across the four years.
+7. **CA-ANN prediction** — transition potential matrices (2014–16, 2016–18, 2018–20) built via MLP back-propagation in MOLUSCE, then Cellular Automata (Monte Carlo) used to simulate LST for 2022 and 2024, using mean temperature, rainfall, and land-cover change as spatial variables.
+8. **Validation** — simulated 2020 LST checked against actual classified 2020 LST; ROC/AUC used to validate the two transition models.
+
+#### 5. Advantages of the System
+
+- Combines a long historical meteorological baseline (34 years) with multi-temporal, multi-seasonal remote-sensing LST — gives both trend context and spatial detail.
+- CA-ANN captures non-linear, land-cover-driven LST change more flexibly than a pure linear-regression forecast.
+- Rigorous statistical validation (R², RMSE, MAE, ROC/AUC) rather than just visual comparison of maps.
+- Explicitly links LST change to land-cover drivers (NDVI/NDBI) rather than reporting temperature trends in isolation.
+- Built entirely on freely available data (Landsat, BMD records) and an open-source GIS plugin, making the workflow reproducible.
+
+#### 6. Disadvantages & Limitations of the System
+
+- Land cover is reduced to only **3 broad classes** (vegetation, water, barren & built-up); classification accuracy ranges 82–89% with Kappa as low as 0.74, so misclassification propagates into the LST-driver analysis.
+- CA-ANN validation is moderate, not strong: AUC of 0.70–0.75 and 74.08% overall correctness leave meaningful room for error in the 2022/2024 predictions.
+- The transition-potential model is trained on only two prior time-steps (2018 and 2020) to project two future years — a narrow training window for a non-linear model.
+- Only two non-land-cover spatial variables (mean temperature, rainfall) drive the simulation; other known UHI drivers (elevation, population/building density, albedo) are omitted.
+- Single-date seasonal images can be affected by short-term weather noise; the paper doesn't discuss cloud/atmospheric correction uncertainty in the LST retrieval step.
+- Meteorological trend analysis aggregates multiple stations at the district level, which can mask intra-district spatial variability in a 2,438 km² study area.
+
+#### 7. Loopholes in the Existing System
+
+- No ward/neighbourhood-level breakdown — analysis stops at the district scale, so results can't directly inform localized planning decisions.
+- No benchmarking of ANN against alternative regressors (e.g., Random Forest, XGBoost, SVR) to justify why ANN was the best choice for this dataset.
+- The study **describes and predicts** LST change but stops short of producing any actionable output — no ranked list of high-priority areas or concrete mitigation recommendations.
+- Outputs are static printed maps (Figs. 4–6, 11, 13); there is no interactive or queryable deliverable for end users (planners, municipal bodies).
+- The 3-class LULC scheme can't distinguish, say, high-rise dense built-up from low-rise sparse settlement, even though these have very different thermal signatures.
+
+#### 8. Our Contribution to the System
+
+Relative to this paper, the UHI project extends the same core idea (spectral-index-driven LST prediction) in a few concrete directions:
+
+- **Finer spatial resolution**: LST and land-cover statistics are aggregated at the **ward level** (BBMP 2022 boundaries, 243 wards) rather than district-wide, so results are directly actionable for local planning.
+- **Richer feature set**: uses NDVI, NDBI, **and MNDWI** (vs. NDVI/NDBI only here) as predictors.
+- **Model comparison**: trains and compares **XGBoost, Random Forest, and Linear Regression** rather than committing to a single ANN, to justify the final model choice empirically.
+- **Actionable output layer**: adds a rule-based **priority-tier system** (Critical/High/Moderate) and Cool/Moderate/Hot classification per ward, translating predicted LST directly into ranked green-cover intervention recommendations — the step this paper stops short of.
+- **Interactive deliverable**: final output is a self-contained interactive Folium choropleth map (hover-based per-ward LST/land-cover/recommendation), rather than static printed maps, plus a ranked CSV/table appendix.
+
+#### 9. Problem Statement Defined in Detail
+
+Rapid, unmanaged expansion of impervious land cover (settlement, bare/built-up surfaces) in the northwestern Rajshahi district of Bangladesh is progressively raising land surface temperature, particularly in the post-monsoon and winter seasons, while seasonal rainfall — especially during the monsoon — is simultaneously declining. This combination increases the risk of both heat stress and drought even outside the traditionally dry season, with direct downstream effects on groundwater extraction, crop yield (notably Aman rice, Boro rice, and wheat), and water security for the local population. Existing regional studies have largely treated LST monitoring and land-use/land-cover-change assessment as separate exercises, and few attempt to _simulate_ future LST under continuing land-cover and climatic trends rather than simply describing historical change. There is therefore a need for an integrated system that (a) quantifies the historical relationship between land-cover change and LST at a regional scale, (b) statistically validates that relationship, and (c) uses it to project future LST distribution, so that land-management and heat-mitigation policy can be planned proactively rather than reactively.
+
+#### 10. Existing and Proposed System (Detailed, with Block Diagrams)
+
+##### Existing System (as described in the paper)
+
+The paper's own system (Fig. 2 of the paper) follows this flow:
+
+```
+┌─────────────────────┐        ┌──────────────────────┐
+│  Meteorological Data │        │    Satellite Imagery  │
+│ (Daily Temp/Rainfall,│        │ (Landsat 8, 2014-2020,│
+│    1985-2018)        │        │  Pre/Post-monsoon/    │
+└──────────┬───────────┘        │  Winter)               │
+           │                    └───────────┬────────────┘
+           ▼                                ▼
+┌─────────────────────┐        ┌──────────────────────┐
+│ Statistical Analysis │        │  Image Preprocessing  │
+│ (Trend + Frequency)  │        └───────────┬────────────┘
+└──────────┬───────────┘                    │
+           │              ┌──────────────────┴───────────────┐
+           │              ▼                                  ▼
+           │   ┌─────────────────────┐         ┌───────────────────────┐
+           │   │ LST Derivation        │         │ LULC Classification   │
+           │   │ (DN→Radiance→Kelvin  │         │ (ISO Cluster, NDVI,   │
+           │   │   →Celsius)          │         │  NDBI)                │
+           │   └──────────┬───────────┘         └───────────┬───────────┘
+           │              └───────────────┬──────────────────┘
+           ▼                              ▼
+┌─────────────────────┐        ┌──────────────────────┐
+│ Air vs Surface Temp  │        │ Change Detection &    │
+│  Correlation Check   │        │ LULC Impact on LST    │
+└──────────┬───────────┘        └───────────┬────────────┘
+           └───────────────┬────────────────┘
+                            ▼
+              ┌───────────────────────────┐
+              │  CA-ANN Prediction Model   │
+              │  (MOLUSCE: MLP transition  │
+              │   potential + Monte Carlo  │
+              │   CA simulation)           │
+              └─────────────┬───────────────┘
+                             ▼
+              ┌───────────────────────────┐
+              │   Model Validation (ROC/   │
+              │   AUC, accuracy vs actual) │
+              └─────────────┬───────────────┘
+                             ▼
+              ┌───────────────────────────┐
+              │ Predicted LST Maps 2022 &  │
+              │ 2024 + Discussion of       │
+              │ Climatic/Socioeconomic     │
+              │ Impact (static output)     │
+              └───────────────────────────┘
+```
+
+##### Proposed System (current UHI project)
+
+```
+┌───────────────────────────┐
+│   Landsat 8/9 Bands        │
+│ (Red, NIR, SWIR1, ST_B10,  │
+│   QA_PIXEL) — Bengaluru    │
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐
+│  Preprocessing & Masking   │
+│  (cloud mask, raster prep) │
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐
+│ Spectral Index Computation │
+│   NDVI · NDBI · MNDWI      │
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐        ┌───────────────────────────┐
+│  ML Model Comparison        │◄──────┤ BBMP Ward Boundaries        │
+│ (XGBoost / Random Forest /  │       │ (243 wards, GeoJSON)         │
+│  Linear Regression)         │       └───────────────────────────┘
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐
+│ Ward-level LST Prediction  │
+│  & Zonal Aggregation       │
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐
+│ Priority Tier + Cool/      │
+│ Moderate/Hot Classification│
+│ (rule-based recommendation)│
+└──────────────┬─────────────┘
+               ▼
+┌───────────────────────────┐
+│ Interactive Folium         │
+│ Choropleth Map (HTML) +    │
+│ Ranked CSV/Table Appendix  │
+└───────────────────────────┘
+```
+
